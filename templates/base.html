@@ -1,0 +1,440 @@
+{% load static humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}EasyBooking | Zero Brokerage Room & Property Rental Platform{% endblock %}</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                            800: '#9f1239',
+                            900: '#881337',
+                        },
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        .hero-pattern {
+            background-color: #0f172a;
+            background-image: radial-gradient(rgba(225, 29, 72, 0.15) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+        }
+        .badge-zero-brokerage {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+        .badge-verified {
+            background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+    <!-- Top Announcement Bar -->
+    <div class="bg-gradient-to-r from-red-600 to-rose-700 text-white text-xs sm:text-sm py-2 px-4 text-center font-medium shadow-inner">
+        <div class="max-w-7xl mx-auto flex items-center justify-center gap-2">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-white text-red-700 uppercase tracking-wide">
+                <i class="fa-solid fa-shield-check mr-1"></i> 100% Free
+            </span>
+            <span>Zero Brokerage Guarantee • Directly Contact Verified Owners & Schedule Free Visits!</span>
+        </div>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logo & Brand -->
+                <div class="flex items-center gap-8">
+                    <a href="{% url 'home' %}" class="flex items-center gap-3 group">
+                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 flex items-center justify-center text-white shadow-md shadow-red-500/20 group-hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-house-chimney-window text-xl"></i>
+                        </div>
+                        <div>
+                            <span class="text-2xl font-black tracking-tight text-slate-900 group-hover:text-red-600 transition-colors">
+                                Easy<span class="text-red-600">Booking</span>
+                            </span>
+                            <span class="block text-[10px] font-bold uppercase tracking-wider text-emerald-600 -mt-1">
+                                <i class="fa-solid fa-circle-check text-[9px]"></i> 0% Brokerage
+                            </span>
+                        </div>
+                    </a>
+
+                    <!-- City Quick Selector -->
+                    <div class="hidden lg:flex items-center gap-2 pl-4 border-l border-slate-200">
+                        <i class="fa-solid fa-location-dot text-red-500 text-sm"></i>
+                        <form method="GET" action="{% url 'listing_list' %}" class="m-0">
+                            <select name="city" onchange="this.form.submit()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-red-500 focus:outline-none cursor-pointer hover:bg-slate-100 transition">
+                                <option value="all">All Cities</option>
+                                {% for city in POPULAR_CITIES %}
+                                    <option value="{{ city }}" {% if request.GET.city == city %}selected{% endif %}>{{ city }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Navigation Links -->
+                <nav class="hidden md:flex items-center gap-6">
+                    <a href="{% url 'listing_list' %}" class="text-sm font-semibold text-slate-700 hover:text-red-600 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-magnifying-glass text-slate-400"></i> Explore Rooms
+                    </a>
+                    <a href="{% url 'wishlist' %}" class="text-sm font-semibold text-slate-700 hover:text-red-600 transition flex items-center gap-1.5 relative">
+                        <i class="fa-solid fa-heart text-rose-500"></i> Saved
+                        {% if saved_count > 0 %}
+                            <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white bg-red-600 rounded-full">
+                                {{ saved_count }}
+                            </span>
+                        {% endif %}
+                    </a>
+                </nav>
+
+                <!-- Right Actions & User Menu -->
+                <div class="flex items-center gap-3">
+                    
+                    <!-- Post Property / Room CTA (Prominent NoBroker Style) -->
+                    <a href="{% url 'property_create' %}" class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider text-emerald-800 bg-emerald-50 border border-emerald-300 hover:bg-emerald-100 hover:border-emerald-400 shadow-sm transition">
+                        <i class="fa-solid fa-plus-circle text-emerald-600 text-sm"></i>
+                        Post Free Property
+                    </a>
+
+                    {% if request.user.is_authenticated %}
+                        <!-- User Dropdown Menu -->
+                        <div class="relative" id="userMenuWrapper">
+                            <button id="userMenuBtn" class="flex items-center gap-2.5 p-1.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition">
+                                <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 font-bold flex items-center justify-center text-sm">
+                                    {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+                                </div>
+                                <div class="hidden md:block text-left pr-1">
+                                    <p class="text-xs font-bold text-slate-800 leading-tight">
+                                        {{ request.user.first_name|default:request.user.username }}
+                                    </p>
+                                    <p class="text-[10px] font-semibold text-slate-500 uppercase">
+                                        {{ request.user.profile.get_role_display }}
+                                    </p>
+                                </div>
+                                <i class="fa-solid fa-chevron-down text-slate-400 text-xs"></i>
+                            </button>
+
+                            <!-- Dropdown Menu Content -->
+                            <div id="userDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50">
+                                <div class="px-4 py-2 border-b border-slate-100">
+                                    <p class="text-xs text-slate-500 font-medium">Signed in as</p>
+                                    <p class="text-sm font-bold text-slate-900 truncate">{{ request.user.email|default:request.user.username }}</p>
+                                </div>
+
+                                {% if request.user.profile.role == 'owner' or request.user.is_staff %}
+                                    <a href="{% url 'owner_dashboard' %}" class="flex items-center justify-between px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-red-50 hover:text-red-700 transition">
+                                        <span><i class="fa-solid fa-gauge-high mr-2 text-slate-400"></i> Owner Dashboard</span>
+                                        {% if pending_visits_count or pending_bookings_count %}
+                                            <span class="bg-red-500 text-white rounded-full px-1.5 py-0.5 text-[10px]">
+                                                {{ pending_visits_count|add:pending_bookings_count }}
+                                            </span>
+                                        {% endif %}
+                                    </a>
+                                    <a href="{% url 'property_create' %}" class="flex items-center px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-red-50 hover:text-red-700 transition">
+                                        <i class="fa-solid fa-building-circle-check mr-2 text-slate-400"></i> Post New Property
+                                    </a>
+                                {% endif %}
+
+                                <a href="{% url 'tenant_dashboard' %}" class="flex items-center justify-between px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-red-50 hover:text-red-700 transition">
+                                    <span><i class="fa-solid fa-calendar-check mr-2 text-slate-400"></i> My Visits & Bookings</span>
+                                </a>
+
+                                <a href="{% url 'wishlist' %}" class="flex items-center px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-red-50 hover:text-red-700 transition">
+                                    <i class="fa-solid fa-heart mr-2 text-slate-400"></i> Shortlisted Rooms
+                                </a>
+
+                                <a href="{% url 'profile' %}" class="flex items-center px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-red-50 hover:text-red-700 transition">
+                                    <i class="fa-solid fa-user-gear mr-2 text-slate-400"></i> Profile Settings
+                                </a>
+
+                                <div class="border-t border-slate-100 my-1"></div>
+
+                                <a href="{% url 'logout' %}" class="flex items-center px-4 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50 transition">
+                                    <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Log Out
+                                </a>
+                            </div>
+                        </div>
+
+                    {% else %}
+                        <!-- Login & Register Links -->
+                        <div class="flex items-center gap-2">
+                            <a href="{% url 'login' %}" class="px-4 py-2 text-xs font-bold text-slate-700 hover:text-red-600 transition">
+                                Log In
+                            </a>
+                            <a href="{% url 'register' %}" class="px-4 py-2 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 shadow-md shadow-red-600/20 transition">
+                                Sign Up Free
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <!-- Mobile Menu Hamburger Button -->
+                    <button id="mobileMenuBtn" class="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 focus:outline-none">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer Navigation -->
+        <div id="mobileMenu" class="hidden md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-3">
+            <div class="mb-3">
+                <form method="GET" action="{% url 'listing_list' %}" class="w-full">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase">Select City</label>
+                    <select name="city" onchange="this.form.submit()" class="w-full mt-1 bg-slate-50 border border-slate-200 text-slate-700 text-sm font-semibold rounded-xl px-3 py-2">
+                        <option value="all">All Cities</option>
+                        {% for city in POPULAR_CITIES %}
+                            <option value="{{ city }}" {% if request.GET.city == city %}selected{% endif %}>{{ city }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+            <a href="{% url 'listing_list' %}" class="block py-2 text-sm font-semibold text-slate-700 hover:text-red-600">
+                <i class="fa-solid fa-magnifying-glass mr-2 text-slate-400"></i> Explore Rooms & Flats
+            </a>
+            <a href="{% url 'wishlist' %}" class="block py-2 text-sm font-semibold text-slate-700 hover:text-red-600">
+                <i class="fa-solid fa-heart mr-2 text-rose-500"></i> Saved Properties ({{ saved_count }})
+            </a>
+            <a href="{% url 'property_create' %}" class="block py-2.5 px-3 rounded-xl bg-emerald-50 text-emerald-800 text-sm font-bold border border-emerald-200 text-center">
+                <i class="fa-solid fa-plus-circle mr-1 text-emerald-600"></i> Post Free Property
+            </a>
+            {% if request.user.is_authenticated %}
+                <div class="border-t border-slate-100 pt-2 space-y-1">
+                    {% if request.user.profile.role == 'owner' or request.user.is_staff %}
+                        <a href="{% url 'owner_dashboard' %}" class="block py-2 text-sm font-semibold text-slate-700">
+                            <i class="fa-solid fa-gauge-high mr-2 text-slate-400"></i> Owner Dashboard
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'tenant_dashboard' %}" class="block py-2 text-sm font-semibold text-slate-700">
+                        <i class="fa-solid fa-calendar-check mr-2 text-slate-400"></i> My Visits & Bookings
+                    </a>
+                    <a href="{% url 'profile' %}" class="block py-2 text-sm font-semibold text-slate-700">
+                        <i class="fa-solid fa-user-gear mr-2 text-slate-400"></i> Profile
+                    </a>
+                    <a href="{% url 'logout' %}" class="block py-2 text-sm font-bold text-red-600">
+                        <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> Log Out
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Flash Messages / Toast Alerts -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 space-y-2">
+            {% for message in messages %}
+                <div class="p-4 rounded-2xl flex items-center justify-between shadow-sm transition-all {% if message.tags == 'success' %}bg-emerald-50 border border-emerald-200 text-emerald-800{% elif message.tags == 'error' %}bg-rose-50 border border-rose-200 text-rose-800{% else %}bg-blue-50 border border-blue-200 text-blue-800{% endif %}">
+                    <div class="flex items-center gap-3">
+                        {% if message.tags == 'success' %}
+                            <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fa-solid fa-circle-exclamation text-rose-600 text-lg"></i>
+                        {% else %}
+                            <i class="fa-solid fa-circle-info text-blue-600 text-lg"></i>
+                        {% endif %}
+                        <p class="text-sm font-semibold">{{ message }}</p>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 p-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content Block -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Professional NoBroker Style Footer -->
+    <footer class="bg-slate-900 text-slate-300 border-t border-slate-800 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+                
+                <!-- Col 1: Brand Info -->
+                <div class="lg:col-span-2 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 flex items-center justify-center text-white">
+                            <i class="fa-solid fa-house-chimney-window text-lg"></i>
+                        </div>
+                        <span class="text-2xl font-black text-white tracking-tight">
+                            Easy<span class="text-red-500">Booking</span>
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-400 leading-relaxed max-w-sm">
+                        EasyBooking is India's leading zero-brokerage rental discovery platform. We connect verified room & property owners directly with genuine tenants—saving 100% on broker commissions.
+                    </p>
+                    <div class="flex items-center gap-3 pt-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
+                            <i class="fa-solid fa-badge-check"></i> 100% Direct Owners
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-950 text-rose-400 border border-rose-800">
+                            <i class="fa-solid fa-ban"></i> Zero Brokerage
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Col 2: Top Cities -->
+                <div>
+                    <h4 class="text-sm font-bold uppercase tracking-wider text-white mb-4">Top Cities</h4>
+                    <ul class="space-y-2.5 text-xs text-slate-400">
+                        <li><a href="{% url 'listing_list' %}?city=Bangalore" class="hover:text-red-400 transition">Rooms in Bangalore</a></li>
+                        <li><a href="{% url 'listing_list' %}?city=Mumbai" class="hover:text-red-400 transition">Flats in Mumbai</a></li>
+                        <li><a href="{% url 'listing_list' %}?city=Pune" class="hover:text-red-400 transition">PGs in Pune</a></li>
+                        <li><a href="{% url 'listing_list' %}?city=Delhi+NCR" class="hover:text-red-400 transition">Rooms in Delhi NCR</a></li>
+                        <li><a href="{% url 'listing_list' %}?city=Hyderabad" class="hover:text-red-400 transition">Rentals in Hyderabad</a></li>
+                        <li><a href="{% url 'listing_list' %}?city=Chennai" class="hover:text-red-400 transition">Apartments in Chennai</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Room Types -->
+                <div>
+                    <h4 class="text-sm font-bold uppercase tracking-wider text-white mb-4">Browse Categories</h4>
+                    <ul class="space-y-2.5 text-xs text-slate-400">
+                        <li><a href="{% url 'listing_list' %}?property_type=single_room" class="hover:text-red-400 transition">Single Private Rooms</a></li>
+                        <li><a href="{% url 'listing_list' %}?property_type=shared_room" class="hover:text-red-400 transition">Shared Rooms / PG Beds</a></li>
+                        <li><a href="{% url 'listing_list' %}?property_type=1bhk" class="hover:text-red-400 transition">1 BHK Apartments</a></li>
+                        <li><a href="{% url 'listing_list' %}?property_type=2bhk" class="hover:text-red-400 transition">2 BHK Family Flats</a></li>
+                        <li><a href="{% url 'listing_list' %}?property_type=studio" class="hover:text-red-400 transition">Studio Flats</a></li>
+                        <li><a href="{% url 'listing_list' %}?furnishing=fully_furnished" class="hover:text-red-400 transition">Furnished Homes</a></li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: For Owners & Tenants -->
+                <div>
+                    <h4 class="text-sm font-bold uppercase tracking-wider text-white mb-4">Quick Links</h4>
+                    <ul class="space-y-2.5 text-xs text-slate-400">
+                        <li><a href="{% url 'property_create' %}" class="hover:text-red-400 transition">Post Property for Free</a></li>
+                        <li><a href="{% url 'tenant_dashboard' %}" class="hover:text-red-400 transition">My Scheduled Visits</a></li>
+                        <li><a href="{% url 'wishlist' %}" class="hover:text-red-400 transition">My Shortlisted Properties</a></li>
+                        <li><a href="{% url 'login' %}" class="hover:text-red-400 transition">Owner Login</a></li>
+                        <li><a href="{% url 'register' %}" class="hover:text-red-400 transition">Create Free Account</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Bottom Copyright & Disclaimer -->
+            <div class="mt-12 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+                <p>© 2026 EasyBooking Rentals India Pvt. Ltd. All Rights Reserved. Built with Python Django.</p>
+                <div class="flex items-center gap-6">
+                    <span class="hover:text-slate-400 cursor-pointer">Privacy Policy</span>
+                    <span class="hover:text-slate-400 cursor-pointer">Terms of Service</span>
+                    <span class="hover:text-slate-400 cursor-pointer">Zero Brokerage Guarantee</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Universal Scripts (User dropdown, wishlist AJAX, mobile menu) -->
+    <script>
+        // Dropdown toggle
+        const userMenuBtn = document.getElementById('userMenuBtn');
+        const userDropdown = document.getElementById('userDropdown');
+        if (userMenuBtn && userDropdown) {
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('hidden');
+            });
+            document.addEventListener('click', (e) => {
+                if (!document.getElementById('userMenuWrapper').contains(e.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        // Mobile drawer toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+
+        // Wishlist AJAX Toggle Handler
+        function toggleWishlist(listingId, btnElement) {
+            fetch(`/wishlist/toggle/${listingId}/`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const icon = btnElement.querySelector('i');
+                    if (data.saved) {
+                        icon.classList.remove('fa-regular', 'text-slate-400');
+                        icon.classList.add('fa-solid', 'text-rose-500');
+                    } else {
+                        icon.classList.remove('fa-solid', 'text-rose-500');
+                        icon.classList.add('fa-regular', 'text-slate-400');
+                    }
+                }
+            })
+            .catch(err => {
+                // If not logged in, redirect to login
+                window.location.href = "{% url 'login' %}";
+            });
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up Free | EasyBooking - Zero Brokerage{% endblock %}
+
+{% block content %}
+<div class="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-lg w-full space-y-8 bg-white p-8 sm:p-10 rounded-3xl border border-slate-200 shadow-xl">
+        
+        <!-- Header -->
+        <div class="text-center">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 flex items-center justify-center text-white mx-auto mb-3 shadow-md">
+                <i class="fa-solid fa-user-plus text-xl"></i>
+            </div>
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">
+                Create Your Free Account
+            </h2>
+            <p class="text-xs text-slate-500 mt-1">
+                Zero brokerage guarantee for both tenants and property owners.
+            </p>
+        </div>
+
+        {% if form.errors %}
+            <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+                <p class="font-bold mb-1">Please fix the errors below:</p>
+                <ul class="list-disc pl-5 space-y-0.5">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            <!-- Role Selector -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">I am using EasyBooking to:</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="role" value="tenant" class="peer hidden" checked>
+                        <div class="p-3 rounded-2xl border-2 border-slate-200 peer-checked:border-red-600 peer-checked:bg-red-50/50 text-center transition">
+                            <i class="fa-solid fa-user-tag text-lg text-red-600 mb-1"></i>
+                            <span class="block text-xs font-bold text-slate-800">Rent a Room</span>
+                            <span class="block text-[10px] text-slate-400">Tenant / Seeker</span>
+                        </div>
+                    </label>
+
+                    <label class="cursor-pointer">
+                        <input type="radio" name="role" value="owner" class="peer hidden" {% if initial_role == 'owner' %}checked{% endif %}>
+                        <div class="p-3 rounded-2xl border-2 border-slate-200 peer-checked:border-red-600 peer-checked:bg-red-50/50 text-center transition">
+                            <i class="fa-solid fa-house-chimney text-lg text-emerald-600 mb-1"></i>
+                            <span class="block text-xs font-bold text-slate-800">List My Property</span>
+                            <span class="block text-[10px] text-slate-400">Landlord / Owner</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Name row -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">First Name</label>
+                    {{ form.first_name }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Last Name</label>
+                    {{ form.last_name }}
+                </div>
+            </div>
+
+            <!-- Username & Email -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Username *</label>
+                    {{ form.username }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email Address *</label>
+                    {{ form.email }}
+                </div>
+            </div>
+
+            <!-- Phone & City -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mobile Number *</label>
+                    {{ form.phone }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">City *</label>
+                    {{ form.city }}
+                </div>
+            </div>
+
+            <!-- Password & Confirm -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Password *</label>
+                    {{ form.password }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Confirm Password *</label>
+                    {{ form.confirm_password }}
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-red-600/30 transition hover:scale-[1.02] mt-2">
+                Create 100% Free Account
+            </button>
+        </form>
+
+        <div class="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+            Already registered? 
+            <a href="{% url 'login' %}" class="font-bold text-red-600 hover:underline">
+                Log in here
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Zero Brokerage Rooms & Flats for Rent | EasyBooking{% endblock %}
+
+{% block content %}
+<div class="bg-slate-100/70 border-b border-slate-200 py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
+                    <a href="{% url 'home' %}" class="hover:text-red-600">Home</a>
+                    <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                    <span class="text-slate-800 font-semibold">Rentals</span>
+                    {% if selected_city and selected_city != 'all' %}
+                        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                        <span class="text-red-600 font-bold">{{ selected_city }}</span>
+                    {% endif %}
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    {% if selected_city and selected_city != 'all' %}
+                        Zero Brokerage Rooms & Flats in {{ selected_city }}
+                    {% else %}
+                        All Zero Brokerage Rooms & Flats
+                    {% endif %}
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+                    Showing <strong class="text-slate-800">{{ total_count }}</strong> verified direct owner properties
+                </p>
+            </div>
+
+            <!-- Sort dropdown -->
+            <div class="flex items-center gap-2">
+                <label class="text-xs font-bold text-slate-500 uppercase">Sort by:</label>
+                <form method="GET" id="sortForm" class="m-0">
+                    <!-- Preserve existing get params -->
+                    {% for key, value in request.GET.items %}
+                        {% if key != 'sort' and key != 'page' %}
+                            <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endif %}
+                    {% endfor %}
+                    <select name="sort" onchange="this.form.submit()" class="bg-white border border-slate-300 text-xs font-bold text-slate-800 rounded-xl px-3 py-2 focus:ring-2 focus:ring-red-500 focus:outline-none shadow-sm cursor-pointer">
+                        <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest First</option>
+                        <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Rent: Low to High</option>
+                        <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Rent: High to Low</option>
+                        <option value="popular" {% if sort_by == 'popular' %}selected{% endif %}>Most Popular</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        
+        <!-- Left Column: Filters Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sticky top-24">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                    <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-red-500"></i> Filters
+                    </h3>
+                    <a href="{% url 'listing_list' %}" class="text-xs font-bold text-red-600 hover:underline">
+                        Reset All
+                    </a>
+                </div>
+
+                <form method="GET" action="{% url 'listing_list' %}" class="space-y-5">
+                    
+                    <!-- Search Keyword -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Keyword Search</label>
+                        <input type="text" name="q" value="{{ query }}" placeholder="Locality, building, or name" 
+                               class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-red-500 focus:ring-1 focus:ring-red-500">
+                    </div>
+
+                    <!-- City -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">City</label>
+                        <select name="city" class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-red-500 focus:ring-1 focus:ring-red-500">
+                            <option value="all">All Cities</option>
+                            {% for c in POPULAR_CITIES %}
+                                <option value="{{ c }}" {% if selected_city == c %}selected{% endif %}>{{ c }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Property / Room Type -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Property Type</label>
+                        <select name="property_type" class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-red-500 focus:ring-1 focus:ring-red-500">
+                            <option value="all">All Types</option>
+                            {% for pval, plabel in PROPERTY_TYPES %}
+                                <option value="{{ pval }}" {% if selected_type == pval %}selected{% endif %}>{{ plabel }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Rent Range -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Monthly Rent (₹)</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" name="min_rent" value="{{ min_rent }}" placeholder="Min ₹" 
+                                   class="text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-red-500">
+                            <input type="number" name="max_rent" value="{{ max_rent }}" placeholder="Max ₹" 
+                                   class="text-xs px-3 py-2 rounded-xl border border-slate-300 focus:border-red-500">
+                        </div>
+                    </div>
+
+                    <!-- Furnishing -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Furnishing</label>
+                        <select name="furnishing" class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-red-500 focus:ring-1 focus:ring-red-500">
+                            <option value="all">All</option>
+                            <option value="fully_furnished" {% if selected_furnishing == 'fully_furnished' %}selected{% endif %}>Fully Furnished</option>
+                            <option value="semi_furnished" {% if selected_furnishing == 'semi_furnished' %}selected{% endif %}>Semi-Furnished</option>
+                            <option value="unfurnished" {% if selected_furnishing == 'unfurnished' %}selected{% endif %}>Unfurnished</option>
+                        </select>
+                    </div>
+
+                    <!-- Tenant Preference -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1.5">Preferred Tenants</label>
+                        <select name="tenant_preference" class="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-300 focus:border-red-500 focus:ring-1 focus:ring-red-500">
+                            <option value="all">All</option>
+                            <option value="anyone" {% if selected_preference == 'anyone' %}selected{% endif %}>Anyone</option>
+                            <option value="bachelors_male" {% if selected_preference == 'bachelors_male' %}selected{% endif %}>Male Bachelors</option>
+                            <option value="bachelors_female" {% if selected_preference == 'bachelors_female' %}selected{% endif %}>Female Bachelors</option>
+                            <option value="family" {% if selected_preference == 'family' %}selected{% endif %}>Family Only</option>
+                        </select>
+                    </div>
+
+                    <!-- Amenities Checkboxes -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Amenities</label>
+                        <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                            {% for amenity in all_amenities %}
+                                <label class="flex items-center gap-2 text-xs text-slate-600 hover:text-slate-900 cursor-pointer">
+                                    <input type="checkbox" name="amenities" value="{{ amenity.id }}" 
+                                           {% if amenity.id in selected_amenities %}checked{% endif %}
+                                           class="w-3.5 h-3.5 text-red-600 rounded border-slate-300 focus:ring-red-500">
+                                    <span>{{ amenity.name }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Apply Filters Button -->
+                    <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider shadow-md shadow-red-500/20 transition">
+                        Apply Filters
+                    </button>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column: Listings Grid -->
+        <div class="lg:col-span-3">
+            
+            {% if page_obj.object_list %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for property in page_obj.object_list %}
+                        {% include 'includes/property_card.html' with property=property %}
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                    <div class="mt-10 flex items-center justify-center gap-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                               class="px-4 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 transition">
+                                <i class="fa-solid fa-chevron-left mr-1"></i> Prev
+                            </a>
+                        {% endif %}
+
+                        <span class="px-4 py-2 rounded-xl bg-slate-200 text-xs font-bold text-slate-800">
+                            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+                               class="px-4 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-700 hover:bg-slate-50 transition">
+                                Next <i class="fa-solid fa-chevron-right ml-1"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+            {% else %}
+                <!-- Empty State -->
+                <div class="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-lg mx-auto">
+                    <div class="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center text-2xl mx-auto mb-4">
+                        <i class="fa-solid fa-magnifying-glass-location"></i>
+                    </div>
+                    <h3 class="text-lg font-black text-slate-900 mb-2">No matching properties found</h3>
+                    <p class="text-xs text-slate-500 mb-6 leading-relaxed">
+                        Try relaxing your filters, searching for a broader locality, or checking back soon as new verified owner listings are posted daily.
+                    </p>
+                    <a href="{% url 'listing_list' %}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-red-700 transition">
+                        Clear All Filters
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}

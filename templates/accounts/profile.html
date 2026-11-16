@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile Settings | EasyBooking{% endblock %}
+
+{% block content %}
+<div class="bg-slate-100/70 border-b border-slate-200 py-6">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-2xl font-black text-slate-900 tracking-tight">Account & Profile Settings</h1>
+        <p class="text-xs text-slate-500 mt-1">Manage your contact details, verification badge, and preferences.</p>
+    </div>
+</div>
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
+        
+        <!-- Header Info -->
+        <div class="flex items-center gap-4 pb-6 border-b border-slate-100 mb-6">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 text-white font-black text-2xl flex items-center justify-center shadow-md">
+                {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <h3 class="text-lg font-black text-slate-900">{{ profile.display_name }}</h3>
+                    {% if profile.is_verified_owner %}
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-slate-900">
+                            <i class="fa-solid fa-circle-check text-sky-400"></i> Verified Landlord
+                        </span>
+                    {% endif %}
+                </div>
+                <p class="text-xs text-slate-500">
+                    Role: <strong class="text-slate-800 capitalize">{{ profile.get_role_display }}</strong>
+                    • Member since {{ request.user.date_joined|date:"M Y" }}
+                </p>
+            </div>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-4">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">First Name</label>
+                    {{ form.first_name }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Last Name</label>
+                    {{ form.last_name }}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email Address</label>
+                    {{ form.email }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Account Role</label>
+                    {{ form.role }}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mobile Number</label>
+                    {{ form.phone }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Default City</label>
+                    {{ form.city }}
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">About / Bio</label>
+                {{ form.bio }}
+            </div>
+
+            <div class="pt-4 flex items-center justify-end">
+                <button type="submit" class="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider shadow-md transition">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock %}

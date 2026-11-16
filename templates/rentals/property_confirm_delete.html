@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Property | EasyBooking{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-20 text-center">
+    <div class="bg-white rounded-3xl border border-slate-200 p-8 shadow-xl">
+        <div class="w-16 h-16 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center text-2xl mx-auto mb-4">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+
+        <h2 class="text-xl font-black text-slate-900 mb-2">Delete this Property Listing?</h2>
+        <p class="text-xs text-slate-500 mb-6 leading-relaxed">
+            Are you sure you want to permanently remove <strong class="text-slate-800">"{{ listing.title }}"</strong>? This action cannot be undone.
+        </p>
+
+        <form method="POST" class="flex items-center justify-center gap-3">
+            {% csrf_token %}
+            <a href="{% url 'owner_dashboard' %}" class="px-5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 transition">
+                No, Keep It
+            </a>
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider shadow-md transition">
+                Yes, Delete Listing
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

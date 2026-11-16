@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | EasyBooking{% endblock %}
+
+{% block content %}
+<div class="bg-slate-100/70 border-b border-slate-200 py-6">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-2 text-xs text-slate-500 mb-2">
+            <a href="{% url 'home' %}" class="hover:text-red-600">Home</a>
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <a href="{% url 'owner_dashboard' %}" class="hover:text-red-600">Dashboard</a>
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span class="text-slate-800 font-bold">{{ title }}</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            {{ title }}
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            Zero brokerage guarantee. Directly connect with thousands of genuine tenants searching for rooms.
+        </p>
+    </div>
+</div>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <form method="POST" enctype="multipart/form-data" class="space-y-8">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+                <p class="font-bold mb-1">Please fix the highlighted errors before submitting:</p>
+                <ul class="list-disc pl-5 space-y-0.5">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <!-- Section 1: Property Headline & Type -->
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+            <div class="flex items-center gap-2 text-slate-900 pb-3 border-b border-slate-100">
+                <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center text-sm font-bold">1</div>
+                <h3 class="text-base font-black">Basic Information</h3>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Property Listing Title *</label>
+                {{ form.title }}
+                <p class="text-[11px] text-slate-400 mt-1">e.g. Spacious Furnished Single Room with AC & Balcony in Koramangala</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Property Type *</label>
+                    {{ form.property_type }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Furnishing Status *</label>
+                    {{ form.furnishing }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Preferred Tenants *</label>
+                    {{ form.tenant_preference }}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Washroom Type *</label>
+                    {{ form.bathroom_type }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Food / Meals Facility</label>
+                    {{ form.food_availability }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Rent & Financials -->
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+            <div class="flex items-center gap-2 text-slate-900 pb-3 border-b border-slate-100">
+                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm font-bold">2</div>
+                <h3 class="text-base font-black">Rent & Deposit Terms</h3>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Monthly Rent (₹) *</label>
+                    {{ form.rent_monthly }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Security Deposit (₹) *</label>
+                    {{ form.security_deposit }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Maintenance (₹ / mo)</label>
+                    {{ form.maintenance_monthly }}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Available From *</label>
+                    {{ form.available_from }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Min Stay (Months)</label>
+                    {{ form.minimum_lease_months }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Notice Period (Days)</label>
+                    {{ form.notice_period_days }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Dimensions & Floor -->
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+            <div class="flex items-center gap-2 text-slate-900 pb-3 border-b border-slate-100">
+                <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-sm font-bold">3</div>
+                <h3 class="text-base font-black">Property Dimensions</h3>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Carpet Area (Sq.Ft.)</label>
+                    {{ form.area_sqft }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Floor No.</label>
+                    {{ form.floor }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Total Floors in Building</label>
+                    {{ form.total_floors }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Location -->
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+            <div class="flex items-center gap-2 text-slate-900 pb-3 border-b border-slate-100">
+                <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-sm font-bold">4</div>
+                <h3 class="text-base font-black">Location & Address</h3>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">City *</label>
+                    {{ form.city }}
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Locality / Sector *</label>
+                    {{ form.locality }}
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Full Building Address *</label>
+                {{ form.address }}
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nearby Landmark</label>
+                {{ form.landmark }}
+            </div>
+        </div>
+
+        <!-- Section 5: Photos & Cover Image -->
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+            <div class="flex items-center gap-2 text-slate-900 pb-3 border-b border-slate-100">
+                <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center text-sm font-bold">5</div>
+                <h3 class="text-base font-black">Photos & Visuals</h3>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Upload Primary Photo</label>
+                {{ form.primary_image }}
+                <p class="text-[11px] text-slate-400 mt-1">Select an authentic photo from your camera or computer.</p>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Or Paste Direct Photo URL</label>
+                {{ form.primary_image_url }}
+                <p class="text-[11px] text-slate-400 mt-1">You can also paste a high-resolution image link directly.</p>
+            </div>
+        </div>
+
+        <!-- Section 6: Amenities Checklist -->
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+            <div class="flex items-center gap-2 text-slate-900 pb-3 border-b border-slate-100">
+                <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center text-sm font-bold">6</div>
+                <h3 class="text-base font-black">Select Available Amenities</h3>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs text-slate-700">
+                {% for checkbox in form.amenities %}
+                    <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 hover:border-red-400 hover:bg-red-50/30 transition cursor-pointer">
+                        {{ checkbox.tag }}
+                        <span class="font-medium">{{ checkbox.choice_label }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Section 7: Description & Rules -->
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+            <div class="flex items-center gap-2 text-slate-900 pb-3 border-b border-slate-100">
+                <div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-600 flex items-center justify-center text-sm font-bold">7</div>
+                <h3 class="text-base font-black">Description & House Rules</h3>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Detailed Property Description *</label>
+                {{ form.description }}
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">House Rules & Restrictions</label>
+                {{ form.house_rules }}
+            </div>
+
+            <div class="pt-2 flex items-center gap-2">
+                {{ form.is_active }}
+                <label for="{{ form.is_active.id_for_label }}" class="text-xs font-bold text-slate-800 cursor-pointer">
+                    Publish listing immediately (make it visible to tenants)
+                </label>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex items-center justify-end gap-4 pt-4">
+            <a href="{% url 'owner_dashboard' %}" class="px-6 py-3 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 transition">
+                Cancel
+            </a>
+            <button type="submit" class="px-8 py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-red-600/30 transition hover:scale-105">
+                Publish Zero Brokerage Listing
+            </button>
+        </div>
+
+    </form>
+</div>
+{% endblock %}
